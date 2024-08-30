@@ -1,19 +1,28 @@
-const express = require('express');
-const connectDB = require('./config/db');
-const cors = require('cors');
-require('dotenv').config();
+import express from "express";
+import cookieParser from "cookie-parser";
+import cors from "cors";
+import dotenv from "dotenv";
+
+import connectDB from "./utils/db.js";
+dotenv.config({});
 
 const app = express();
 
-// Connect Database
-connectDB();
-
 // Middleware
-app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({extended:true}));
+app.use(cookieParser());
 
-// Define Routes
-//app.use('/api/...', require('./routes/...'));
+const corsOptions = {
+    origin:'http//localhost:5173',
+    credentials:true
+}
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+app.use(cors(corsOptions));
+
+const PORT = process.env.PORT || 8000;
+
+app.listen(PORT, () => {
+    connectDB();
+    console.log(`Server started on port ${PORT}`);
+});
