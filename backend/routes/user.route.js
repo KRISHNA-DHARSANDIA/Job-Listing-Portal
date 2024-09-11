@@ -1,23 +1,13 @@
-import express from 'express';
-import {
-    registerUser,
-    loginUser,
-    updateUserProfile
-} from '../controls/user.controllers.js';
-// import { protect, admin } from '../middleware/authMiddleware.js'; 
-
+import express from "express";
+import { login, logout, register, updateProfile } from "../controls/user.controllers.js";
+import isAuthenticated from "../middleware/authMiddleware.js";
+import { singleUpload } from "../middleware/mutler.js";
+ 
 const router = express.Router();
 
-// Public route
-router.post('/register', registerUser); 
-router.post('/login', loginUser); 
-
-// Updating route
-// router.put('/profile', protect, updateUserProfile); 
-
-// Admin route 
-// router.get('/admin', protect, admin, (req, res) => {
-//     res.send('Admin access granted');
-// });
+router.route("/register").post(singleUpload,register);
+router.route("/login").post(login);
+router.route("/logout").get(logout);
+router.route("/profile/update").post(isAuthenticated,singleUpload,updateProfile);
 
 export default router;
