@@ -1,6 +1,6 @@
 import express from "express";
-import isAuthenticated from "../middleware/authMiddleware.js";
-import { getCompany, getCompanyById, registerCompany, updateCompany } from "../controls/company.controller.js";
+import isAuthenticated from "../middleware/isAuthenticated.js";
+import { getCompany, getCompanyById, registerCompany, updateCompany } from "../controllers/company.controller.js";
 import { singleUpload } from "../middleware/mutler.js";
 
 const router = express.Router();

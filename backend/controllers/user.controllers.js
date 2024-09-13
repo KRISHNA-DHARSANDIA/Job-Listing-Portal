@@ -5,20 +5,31 @@ import getDataUri from "../utils/datauri.js";
 import cloudinary from "../utils/cloudinary.js";
 
 export const register = async (req, res) => {
-    
+
     try {
         const { fullname, email, phoneNumber, password, role } = req.body;
-         
+
+
         if (!fullname || !email || !phoneNumber || !password || !role) {
             return res.status(400).json({
                 message: "Something is missing in registering",
                 success: false
             });
         };
+
         let file = req.file;
-        
+
+        if (!file) {
+            return res.status(400).json({
+                message: "File is missing.",
+                success: false
+            });
+        }
+
         const fileUri = getDataUri(file);
         const cloudResponse = await cloudinary.uploader.upload(fileUri.content);
+
+        console.log(cloudResponse);
 
         const user = await User.findOne({ email });
         if (user) {
@@ -27,8 +38,8 @@ export const register = async (req, res) => {
                 success: false,
             })
         }
+
         const hashedPassword = await bcrypt.hash(password, 10);
-       console.log("password is hashed")
 
         await User.create({
             fullname,
@@ -36,8 +47,8 @@ export const register = async (req, res) => {
             phoneNumber,
             password: hashedPassword,
             role,
-            profile:{
-                profilePhoto:cloudResponse.secure_url,
+            profile: {
+                profilePhoto: cloudResponse.secure_url,
             }
         });
 
@@ -46,13 +57,17 @@ export const register = async (req, res) => {
             success: true
         });
     } catch (error) {
-        console.log(error);
+        console.log(error.message);
+        return res.status(500).json({
+            message: error.message,
+            success: false
+        });
     }
 }
 export const login = async (req, res) => {
     try {
         const { email, password, role } = req.body;
-        
+
         if (!email || !password || !role) {
             return res.status(400).json({
                 message: "Something is missing",
@@ -117,7 +132,7 @@ export const logout = async (req, res) => {
 export const updateProfile = async (req, res) => {
     try {
         const { fullname, email, phoneNumber, bio, skills } = req.body;
-        
+
         const file = req.file;
         // cloudinary ayega idhar
         const fileUri = getDataUri(file);
@@ -126,7 +141,7 @@ export const updateProfile = async (req, res) => {
 
 
         let skillsArray;
-        if(skills){
+        if (skills) {
             skillsArray = skills.split(",");
         }
         const userId = req.id; // middleware authentication
@@ -139,14 +154,14 @@ export const updateProfile = async (req, res) => {
             })
         }
         // updating data
-        if(fullname) user.fullname = fullname
-        if(email) user.email = email
-        if(phoneNumber)  user.phoneNumber = phoneNumber
-        if(bio) user.profile.bio = bio
-        if(skills) user.profile.skills = skillsArray
-      
+        if (fullname) user.fullname = fullname
+        if (email) user.email = email
+        if (phoneNumber) user.phoneNumber = phoneNumber
+        if (bio) user.profile.bio = bio
+        if (skills) user.profile.skills = skillsArray
+
         // resume comes later here...
-        if(cloudResponse){
+        if (cloudResponse) {
             user.profile.resume = cloudResponse.secure_url // save the cloudinary url
             user.profile.resumeOriginalName = file.originalname // Save the original file name
         }
@@ -164,9 +179,9 @@ export const updateProfile = async (req, res) => {
         }
 
         return res.status(200).json({
-            message:"Profile updated successfully.",
+            message: "Profile updated successfully.",
             user,
-            success:true
+            success: true
         })
     } catch (error) {
         console.log(error);
