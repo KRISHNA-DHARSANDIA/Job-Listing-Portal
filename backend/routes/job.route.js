@@ -1,22 +1,12 @@
-import express from 'express';
-import {
-    createJob,
-    getAllJobs,
-    getJobById,
-    updateJob,
-    deleteJob
-} from '../controls/job.controllers.js'; 
-// import { protect, admin } from '../middleware/authMiddleware.js';
+import express from "express";
+import isAuthenticated from "../middleware/isAuthenticated.js";
+import { getAdminJobs, getAllJobs, getJobById, postJob } from "../controllers/job.controllers.js";
 
 const router = express.Router();
 
-// Public routes
-router.get('/', getAllJobs); 
-router.get('/:id', getJobById); 
-
-//Admin's Protected routes For (creating, Updating,)
-// router.post('/', protect, admin, createJob); 
-// router.put('/:id', protect, admin, updateJob); 
-// router.delete('/:id', protect, admin, deleteJob); 
+router.route("/post").post(isAuthenticated, postJob);
+router.route("/get").get(isAuthenticated, getAllJobs);
+router.route("/getadminjobs").get(isAuthenticated, getAdminJobs);
+router.route("/get/:id").get(isAuthenticated, getJobById);
 
 export default router;
